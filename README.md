@@ -31,21 +31,32 @@ sudo ./deploy.sh --tailscale "tskey-auth-..." --cloudflare "din-cloudflare-token
 
 ## Opsætning i Proxmox VE (LXC-container)
 
-Det anbefales kraftigt at køre denne løsning i en letvægts **LXC-container** (Ubuntu) i Proxmox frem for en fuld virtuel maskine.
+Det anbefales kraftigt at køre denne løsning i en letvægts **LXC-container** (Ubuntu) i Proxmox frem for en fuld virtuel maskine. 
 
-### 1. Opret LXC Containeren
-Opret en standard Ubuntu LXC container i Proxmox.
+Da standard uprivilegerede containere i Proxmox ikke tillader direkte adgang til VPN-enheder, og da **TUN**-indstillingen ofte ikke er synlig i Proxmox Web UI, skal du konfigurere dette direkte på din **Proxmox Host (vært) CLI**.
 
-### 2. Aktiver TUN og Nesting (VIGTIGT)
-For at Docker kan køre, og for at Tailscale kan oprette sin VPN-tunnel inde i en LXC-container, skal du aktivere **Nesting** og **TUN**.
-
-**Via Proxmox UI:**
-1. Vælg din LXC container i venstre menu.
+### 1. Aktiver Nesting i Web UI
+1. Vælg din LXC container i Proxmox Web UI.
 2. Gå til **Options** -> **Features** i midten.
-3. Klik **Edit** og kryds af i både **Nesting** og **TUN**.
-4. Klik **OK** og start (eller genstart) containeren.
+3. Klik **Edit**, kryds af i **Nesting** og klik **OK**.
 
-*Alt kører nu fuldstændig smertefrit via Docker inde i din container!*
+### 2. Aktiver TUN via Proxmox Host CLI (100% pålidelig metode)
+For at give containeren adgang til VPN-tunneler skal du tilføje TUN-enheden manuelt i containerens konfigurationsfil på din **Proxmox-vært**:
+
+1. Åbn terminalen på din **Proxmox-vært** (ikke inde i containeren).
+2. Åbn containerens konfigurationsfil (erstat `ID` med dit container-id, f.eks. `101`):
+   ```bash
+   nano /etc/pve/lxc/ID.conf
+   ```
+3. Indsæt følgende to linjer i bunden af filen:
+   ```text
+   lxc.cgroup2.devices.allow: c 10:200 rwm
+   lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
+   ```
+4. Gem og luk filen (`Ctrl+O`, derefter `Enter`, og `Ctrl+X`).
+5. **Genstart** din LXC-container.
+
+*Når containeren starter op igen, har den fuld adgang til at oprette VPN-forbindelser via Docker!*
 
 ---
 
