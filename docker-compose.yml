@@ -1,0 +1,28 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscale
+    hostname: ubuntu-vpn-server
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./tailscale-state:/var/lib/tailscale
+      - /lib/modules:/lib/modules:ro
+    environment:
+      - TS_AUTHKEY=${TAILSCALE_AUTHKEY}
+      - TS_EXTRA_ARGS=--advertise-exit-node
+      - TS_STATE_DIR=/var/lib/tailscale
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TOKEN}
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    restart: unless-stopped

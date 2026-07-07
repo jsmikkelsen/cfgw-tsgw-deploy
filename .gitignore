@@ -1,0 +1,8 @@
+# Ignore secret environment variables
+.env
+
+# Ignore Tailscale persistent state
+tailscale-state/
+
+# Ignore system files
+.DS_Store
