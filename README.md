@@ -72,28 +72,3 @@ Da Tailscale-containeren er konfigureret til at fungere som en "exit-node" (så 
 
 ### 2. Konfigurer din Cloudflare Tunnel
 Din Cloudflare Tunnel container vil automatisk forbinde til Cloudflare. Du kan administrere, hvilke interne tjenester, domæner eller IP-adresser den skal pege på direkte i dit [Cloudflare Zero Trust Dashboard](https://one.dash.cloudflare.com) under **Access** -> **Tunnels**.
-
----
-
-## GitHub Setup (Push til dit eget repository)
-
-For at uploade dette til din egen private eller offentlige GitHub-konto:
-
-1. Opret et nyt repository på [GitHub](https://github.com/new).
-2. Kør følgende kommandoer i denne mappe:
-
-```bash
-# Initialiser Git og tilføj filerne
-git init
-git add .
-git commit -m "Initial commit: Dockerized Tailscale and Cloudflare Tunnel deployer"
-
-# Sæt gren-navnet til main
-git branch -M main
-
-# Forbind til dit GitHub repository (erstat med dit rigtige GitHub URL)
-git remote add origin https://github.com/DIT_BRUGERNAVN/DIT_REPO_NAVN.git
-
-# Push filerne
-git push -u origin main
-```
